@@ -3,7 +3,6 @@ package frc.autonomous;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.DriveTrain;
 import frc.subsystem.Elevator;
-import frc.subsystem.ElevatorPosition;
 import frc.subsystem.Hatch;
 import frc.utils.DriveSignal;
 import jaci.pathfinder.Pathfinder;
@@ -34,7 +33,7 @@ public class Lvl2LeftFarRKT3 extends AutoBase {
                 System.out.println(state);
                 state = State.LEVEL2_to_RocketLEFT_Far;
                 drive.setTrajectory(loadTrajectory("/home/lvuser/deploy/paths/LEVEL2_to_RocketLEFT_Far.pf1.csv"), false);
-                elevator.pidToPosition(ElevatorPosition.HATCH_HIGH);
+                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_HIGH);
                 System.out.println(state);
                 break;
             case LEVEL2_to_RocketLEFT_Far:

@@ -3,7 +3,6 @@ package frc.autonomous;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.DriveTrain;
 import frc.subsystem.Elevator;
-import frc.subsystem.ElevatorPosition;
 import frc.subsystem.Hatch;
 import frc.utils.DriveSignal;
 import jaci.pathfinder.Pathfinder;
@@ -34,7 +33,7 @@ public class Lvl2RightCloseRKT3 extends AutoBase {
                 System.out.println(state);
                 state = State.LEVEL2_to_Rocket;
                 drive.setTrajectory(loadTrajectory("/home/lvuser/deploy/paths/LEVEL2_to_Rocket.pf1.csv"), false);
-                elevator.pidToPosition(ElevatorPosition.HATCH_HIGH);
+                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_HIGH);
                 System.out.println(state);
                 break;
             case LEVEL2_to_Rocket:
@@ -47,7 +46,7 @@ public class Lvl2RightCloseRKT3 extends AutoBase {
                 break;
             case Right_RKT_Close_Backup:
                 hatch.setHatchPull();
-                elevator.pidToPosition(ElevatorPosition.HATCH_LOW);
+                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_LOW);
                 if (drive.isDone()) {
                     state = State.Close_Right_Rkt_to_FEED;
                     System.out.println(state);
@@ -64,7 +63,7 @@ public class Lvl2RightCloseRKT3 extends AutoBase {
                 break;
             case STOP:
                 System.out.println(state);
-//                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_LOW);
+//                elevator.pidToPosition(Elevator.Elevator.ElevatorPosition.HATCH_LOW);
                 drive.setOpenLoop(DriveSignal.NEUTRAL);
                 break;
         }

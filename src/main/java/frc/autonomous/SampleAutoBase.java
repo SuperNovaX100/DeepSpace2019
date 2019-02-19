@@ -23,13 +23,13 @@ public class SampleAutoBase extends AutoBase {
                 break;
             case DRIVE_FORWARD_AND_LIFT_ELEVATOR:
                 drive.setOpenLoop(new DriveSignal(0.25, 0.25));
-//                elevator.pidToPosition(Elevator.ElevatorPosition.CARGO_MID);
+//                elevator.pidToPosition(Elevator.Elevator.ElevatorPosition.CARGO_MID);
                 if (timestamp - lastTimestamp > 1.0) {
                     state = State.STOP;
                 }
                 break;
             case STOP:
-//                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_LOW);
+//                elevator.pidToPosition(Elevator.Elevator.ElevatorPosition.HATCH_LOW);
                 drive.setOpenLoop(DriveSignal.NEUTRAL);
                 break;
         }

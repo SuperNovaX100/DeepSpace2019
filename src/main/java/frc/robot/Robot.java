@@ -247,17 +247,17 @@ public class Robot extends TimedRobot {
         final double tController = Timer.getFPGATimestamp();
 
         if (gameController.setElevatorPositionLowHatch()) {
-            elevator.pidToPosition(ElevatorPosition.HATCH_LOW);
+            elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_LOW);
         } else if (gameController.setElevatorPositionMidHatch()) {
-            elevator.pidToPosition(ElevatorPosition.HATCH_MID);
+            elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_MID);
         } else if (gameController.setElevatorPositionHighHatch()) {
-            elevator.pidToPosition(ElevatorPosition.HATCH_HIGH);
+            elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_HIGH);
         } else if (gameController.setElevatorPositionLowCargo()) {
-            elevator.pidToPosition(ElevatorPosition.CARGO_LOW);
+            elevator.pidToPosition(Elevator.ElevatorPosition.CARGO_LOW);
         } else if (gameController.setElevatorPositionMidCargo()) {
-            elevator.pidToPosition(ElevatorPosition.CARGO_MID);
+            elevator.pidToPosition(Elevator.ElevatorPosition.CARGO_MID);
         } else if (gameController.setElevatorPositionHighCargo()) {
-            elevator.pidToPosition(ElevatorPosition.CARGO_HIGH);
+            elevator.pidToPosition(Elevator.ElevatorPosition.CARGO_HIGH);
         } else {
             elevator.manualMovement(gameController.elevateManual());
         }

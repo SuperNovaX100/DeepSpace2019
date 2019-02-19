@@ -3,7 +3,6 @@ package frc.autonomous;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.subsystem.DriveTrain;
 import frc.subsystem.Elevator;
-import frc.subsystem.ElevatorPosition;
 import frc.subsystem.Hatch;
 import frc.utils.DriveSignal;
 import jaci.pathfinder.Pathfinder;
@@ -34,7 +33,7 @@ public class Autoline extends AutoBase {
                 System.out.println(state);
                 state = State.EncodeTest;
                 drive.setTrajectory(loadTrajectory("/home/lvuser/deploy/paths/EncodeTest.pf1.csv"), false);
-                elevator.pidToPosition(ElevatorPosition.HATCH_LOW);
+                elevator.pidToPosition(Elevator.ElevatorPosition.HATCH_LOW);
                 break;
             case EncodeTest:
                 System.out.println(state);
