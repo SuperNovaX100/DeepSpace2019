@@ -121,7 +121,7 @@ public class JacksStateMachine {
         systemState.rightJackOutput.controlMode = right.getControlMode();
     }
 
-    private synchronized void setState(Jack0409.JackSystem desiredState) {
+    private void setState(Jack0409.JackSystem desiredState) {
         if (systemState.generalInput.state != desiredState) {
             systemState.generalInput.state = desiredState;
             if (desiredState == Jack0409.JackSystem.ZEROING) {
