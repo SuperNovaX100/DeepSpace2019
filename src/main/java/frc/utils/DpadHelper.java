@@ -1,14 +1,18 @@
 package frc.utils;
 
 public final class DpadHelper {
-    private static final int POV_DPAD_UP = 0;
-    private static final int POV_DPAD_UPPER_RIGHT = 45;
-    private static final int POV_DPAD_LOWER_RIGHT = 135;
-    private static final int POV_DPAD_RIGHT = 90;
-    private static final int POV_DPAD_DOWN = 180;
-    private static final int POV_DPAD_LEFT = 270;
-    private static final int POV_DPAD_UPPER_LEFT = 315;
-    private static final int POV_DPAD_LOWER_LEFT = 225;
+    static final int POV_DPAD_UP = 0;
+    static final int POV_DPAD_UPPER_RIGHT = 45;
+    static final int POV_DPAD_LOWER_RIGHT = 135;
+    static final int POV_DPAD_RIGHT = 90;
+    static final int POV_DPAD_DOWN = 180;
+    static final int POV_DPAD_LEFT = 270;
+    static final int POV_DPAD_UPPER_LEFT = 315;
+    static final int POV_DPAD_LOWER_LEFT = 225;
+
+    private DpadHelper(){
+
+    }
 
     public static LastDpadState lastDpadUpdate(LastDpadState lastDpadState, int pov) {
         if (pov == -1) {
