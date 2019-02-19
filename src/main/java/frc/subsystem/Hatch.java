@@ -8,10 +8,10 @@ import frc.loops.Loop;
 import frc.loops.Looper;
 import frc.loops.LooperInterface;
 import frc.states.HatchState;
-import frc.states.HatchStateMachine;
+import frc.statemachines.HatchStateMachine;
 
-import static frc.states.HatchStateMachine.PEAK_FORWARD_OUTPUT_STANDARD;
-import static frc.states.HatchStateMachine.PEAK_REVERSE_OUTPUT_STANDARD;
+import static frc.statemachines.HatchStateMachine.PEAK_FORWARD_OUTPUT_STANDARD;
+import static frc.statemachines.HatchStateMachine.PEAK_REVERSE_OUTPUT_STANDARD;
 import static frc.utils.Constants.*;
 
 public final class Hatch extends Subsystem {

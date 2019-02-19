@@ -1,4 +1,4 @@
 /**
- * State machines and states to use within the subsystems.
+ * States representing the state of various subsystems.
  */
 package frc.states;

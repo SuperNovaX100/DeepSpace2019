@@ -1,4 +1,7 @@
-package frc.states;
+package frc.statemachines;
+
+import frc.states.CargoState;
+import frc.states.IntakeState;
 
 public class CargoStateMachine {
     private final CargoState systemState = new CargoState();

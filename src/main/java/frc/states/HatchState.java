@@ -15,8 +15,8 @@ public class HatchState {
     public boolean resetSensor = false;
 
     // Non-IO
-    ControlState hatchState = ControlState.STOPPED;
-    boolean hasZeroed = false;
+    public ControlState hatchState = ControlState.STOPPED;
+    public boolean hasZeroed = false;
 
     public enum ControlState {
         ZEROING(true),

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.loops.Loop;
 import frc.loops.LooperInterface;
 import frc.states.CargoState;
-import frc.states.CargoStateMachine;
+import frc.statemachines.CargoStateMachine;
 import frc.states.IntakeState;
 import frc.utils.Constants;
 

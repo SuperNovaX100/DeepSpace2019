@@ -1,6 +1,7 @@
-package frc.states;
+package frc.statemachines;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import frc.states.HatchState;
 
 import static frc.states.HatchState.ControlState.*;
 import static frc.utils.Constants.HATCH_PLACE_ENCODER_POSITION;
