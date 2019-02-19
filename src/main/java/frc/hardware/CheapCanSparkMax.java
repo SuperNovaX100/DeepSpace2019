@@ -1,4 +1,4 @@
-package frc.utils;
+package frc.hardware;
 
 import com.revrobotics.CANSparkMax;
 

@@ -1,4 +1,4 @@
-package frc.utils;
+package frc.hardware;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;

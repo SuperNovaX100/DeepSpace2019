@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 import frc.loops.Loop;
 import frc.loops.LooperInterface;
-import frc.utils.CheapWpiTalonSrx;
+import frc.hardware.CheapWpiTalonSrx;
 import frc.utils.Constants;
 import frc.utils.DriveSignal;
 
