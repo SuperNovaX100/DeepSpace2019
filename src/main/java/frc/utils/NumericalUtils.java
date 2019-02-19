@@ -17,7 +17,7 @@ public class NumericalUtils {
         return false;
     }
 
-    public static boolean isWithinTolerance(double value, double desired, int tolerance, ToleranceType toleranceType) {
+    public static boolean isWithinTolerance(double value, double desired, double tolerance, ToleranceType toleranceType) {
         if (Math.abs(desired - value) < tolerance) {
             return true;
         }
