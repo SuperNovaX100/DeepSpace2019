@@ -13,7 +13,7 @@ public class JacksStateMachine {
     private static final int LIFT_TOLERANCE = 300;
     private static final DriveSignal RUN_DRIVE_BASE_HAB_CLIMB = new DriveSignal(0.2, 0.2);
     private static final DriveSignal RUN_JACK_WHEELS_HAB_CLIMB = new DriveSignal(1.0, 1.0);
-    private static final double MAX_AMP_DRAW_ZEROING = 4.0;
+    static final double MAX_AMP_DRAW_ZEROING = 4.0;
     private static final double HAB_CLIMB_FINISH_DRIVING_TIME = 0.5;
     private JacksState systemState = new JacksState();
 
@@ -143,7 +143,7 @@ public class JacksStateMachine {
         systemState.generalOutput.driveBaseDriveSignal = DriveSignal.NEUTRAL;
         systemState.generalOutput.resetNavXInformation = false;
         systemState.generalOutput.sendSignalToDriveBase = false;
-        setState(currentState.generalInput.desiredState);
+        setState(currentState.generalInput.state);
         switch (systemState.generalInput.state) {
             case ZEROING:
                 if (zero()) {
@@ -223,6 +223,7 @@ public class JacksStateMachine {
                 break;
             case STOP:
                 controlJacks(JackState.STOP, JackState.STOP, JackState.STOP, Jack0409.GainsState.NONE);
+                setWheels(DriveSignal.NEUTRAL);
                 break;
             default:
                 DriverStation.reportError("Jack state default reached", false);

@@ -18,7 +18,6 @@ public class JacksState {
     public double rightWheelDemand;
 
     public static class GeneralInput {
-        public Jack0409.JackSystem desiredState = Jack0409.JackSystem.STOP;
         public double pitch;
         public double roll;
         public boolean frontIrDetectsGround;

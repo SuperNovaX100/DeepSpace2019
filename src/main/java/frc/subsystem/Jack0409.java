@@ -184,7 +184,7 @@ public final class Jack0409 extends Subsystem {
     }
 
     private synchronized void setDesiredState(JackSystem desiredState) {
-        jacksState.generalInput.desiredState = desiredState;
+        jacksState.generalInput.state = desiredState;
     }
 
     @Override
@@ -212,6 +212,8 @@ public final class Jack0409 extends Subsystem {
      *
      * @param power the output percent to issue to all of the jacks, in the range [-1.0, 1.0].
      */
+    // TODO this has always kept them in retraction mode, we should probably change this but for now it will be left to
+    //  keep continuity and functionality between versions of the Jack code while testing
     public synchronized void setOpenLoop(double power) {
         setDesiredState(JackSystem.OPEN_LOOP);
         jacksState.frontJackOutput.demand = power;
