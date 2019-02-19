@@ -48,7 +48,6 @@ public final class Jacks extends Subsystem {
     private double finishTimestamp = Timer.getFPGATimestamp();
     private JackSystem state = JackSystem.OPEN_LOOP;
     private GainsState lastConfiguredGainState = null;
-    private double lastTimestampRead = Timer.getFPGATimestamp();
     private JackState habLevelToClimbTo = JackState.RETRACT;
 
     /**
