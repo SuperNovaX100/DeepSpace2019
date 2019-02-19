@@ -192,6 +192,7 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         final double t0 = Timer.getFPGATimestamp();
         DriveSignal driveSignal = gameController.getDriveSignal();
+        // TODO IFF using Jacks0409, check whether it is controlling the drive base first
         drive.setOpenLoop(driveSignal);
         final double tDrive = Timer.getFPGATimestamp();
 

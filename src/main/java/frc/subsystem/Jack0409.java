@@ -5,14 +5,13 @@ import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import frc.hardware.CheapWpiTalonSrx;
 import frc.loops.Loop;
 import frc.loops.LooperInterface;
+import frc.statemachines.JacksStateMachine;
 import frc.states.JacksState;
 import frc.utils.Constants;
-import frc.utils.DriveSignal;
 
 import static frc.utils.Constants.*;
 import static frc.utils.ShuffleboardConstants.JACKS_SHUFFLEBOARD;
@@ -26,14 +25,6 @@ public final class Jack0409 extends Subsystem {
     private static final int REAR_MOTION_MAGIC_ACCELERATION_RETRACT = 600;
     private static final int FRONT_MOTION_MAGIC_VELOCITY_RETRACT = 2000;
     private static final int FRONT_MOTION_MAGIC_ACCELERATION_RETRACT = 600;
-    private static final int LIFT_TOLERANCE = 300;
-
-    private static final DriveSignal RETRACT_FRONT_JACK_DRIVE_BASE = new DriveSignal(0.3, 0.3);
-    private static final DriveSignal RUN_DRIVE_BASE_HAB_CLIMB = new DriveSignal(0.2, 0.2);
-
-    private static final DriveSignal RUN_JACK_WHEELS_HAB_CLIMB = new DriveSignal(1.0, 1.0);
-    private static final double MAX_AMP_DRAW_ZEROING = 4.0;
-    private static final double HAB_CLIMB_FINISH_DRIVING_TIME = 0.5;
     private static Jack0409 instance;
     private final CheapWpiTalonSrx rightRearJack;
     private final CheapWpiTalonSrx leftRearJack;
@@ -44,7 +35,8 @@ public final class Jack0409 extends Subsystem {
     private final PowerDistributionPanel pdp;
     private final DigitalInput rearIrSensor;
     private final DriveTrain drive = DriveTrain.getInstance();
-    private final JacksState jacksState = new JacksState();
+    private JacksState jacksState = new JacksState();
+    private JacksStateMachine jacksStateMachine = new JacksStateMachine();
 
     /**
      * Constructor.
@@ -141,27 +133,7 @@ public final class Jack0409 extends Subsystem {
         }
     }
 
-    /**
-     * Resets the flags indicating whether each of the jacks have zeroed or not.
-     */
-    private synchronized void resetZeros(boolean startMovingUp) {
-        jacksState.frontJackInput.hasZeroed = false;
-        jacksState.leftJackInput.hasZeroed = false;
-        jacksState.rightJackInput.hasZeroed = false;
-        jacksState.frontJackInput.currentDraw = 0.0;
-        jacksState.leftJackInput.currentDraw = 0.0;
-        jacksState.rightJackInput.currentDraw = 0.0;
-        if (startMovingUp) {
-            jacksState.frontJackOutput.demand = JackState.ZEROING.getDemand();
-            jacksState.frontJackOutput.controlMode = JackState.ZEROING.getControlMode();
-            jacksState.leftJackOutput.demand = JackState.ZEROING.getDemand();
-            jacksState.leftJackOutput.controlMode = JackState.ZEROING.getControlMode();
-            jacksState.rightJackOutput.demand = JackState.ZEROING.getDemand();
-            jacksState.rightJackOutput.controlMode = JackState.ZEROING.getControlMode();
-        }
-    }
-
-    public synchronized boolean controlDriveBase(){
+    public synchronized boolean controlDriveBase() {
         return jacksState.generalOutput.sendSignalToDriveBase;
     }
 
@@ -171,98 +143,14 @@ public final class Jack0409 extends Subsystem {
             @Override
             public void onStart(double timestamp) {
                 synchronized (Jack0409.this) {
-                    setState(JackSystem.ZEROING);
+                    setDesiredState(JackSystem.ZEROING);
                 }
             }
 
             @Override
             public void onLoop(double timestamp) {
                 synchronized (Jack0409.this) {
-                    jacksState.generalOutput.driveBaseDriveSignal = DriveSignal.NEUTRAL;
-                    jacksState.generalOutput.sendSignalToDriveBase = false;
-                    switch (jacksState.generalInput.state) {
-                        case ZEROING:
-                            if (zero()) {
-                                setState(JackSystem.STOP);
-                                resetZeros(false);
-                            }
-                            break;
-                        case DRIVER_LIFT:
-                            controlJacks(JackState.HAB3, JackState.HAB3, JackState.HAB3, GainsState.LIFT);
-                            gyroCorrect();
-                            break;
-                        case DRIVER_RETRACT:
-                            controlJacks(JackState.RETRACT, JackState.RETRACT, JackState.RETRACT, GainsState.RETRACT);
-                            break;
-                        case INIT_HAB_CLIMB:
-                            if (zero()) {
-                                drive.resetNavX();
-                                setState(JackSystem.HAB_CLIMB_LIFT_ALL);
-                            }
-                            break;
-                        case HAB_CLIMB_LIFT_ALL:
-                            controlJacks(jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, GainsState.LIFT);
-                            if (checkEncoders(LIFT_TOLERANCE)) {
-                                setState(JackSystem.HAB_CLIMB_RUN_FORWARD);
-                            }
-                            break;
-                        case HAB_CLIMB_RUN_FORWARD:
-                            controlJacks(jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, GainsState.LIFT);
-                            jacksState.generalOutput.sendSignalToDriveBase = true;
-                            jacksState.generalOutput.driveBaseDriveSignal = DriveSignal.NEUTRAL;
-                            setWheels(RUN_JACK_WHEELS_HAB_CLIMB);
-                            if (jacksState.generalInput.frontIrDetectsGround) {
-                                setState(JackSystem.HAB_CLIMB_RETRACT_FRONT_JACK);
-                            }
-                            break;
-                        case HAB_CLIMB_RETRACT_FRONT_JACK:
-                            controlJacks(JackState.RETRACT, jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, GainsState.LIFT);
-                            jacksState.generalOutput.sendSignalToDriveBase = true;
-                            jacksState.generalOutput.driveBaseDriveSignal = new DriveSignal(0.05, 0.05);
-                            setWheels(new DriveSignal(0.20, 0.20));
-                            if (checkEncoders((int) (LIFT_TOLERANCE / 1.3))) {
-                                jacksState.generalInput.finishTimestamp = timestamp;
-                                setState(JackSystem.HAB_CLIMB_HOLD_REAR_AND_RUN_FORWARD);
-                            }
-                            break;
-                        case HAB_CLIMB_HOLD_REAR_AND_RUN_FORWARD:
-                            controlJacks(JackState.RETRACT, jacksState.generalInput.habLevelToClimbTo, jacksState.generalInput.habLevelToClimbTo, GainsState.LIFT);
-                            jacksState.generalOutput.sendSignalToDriveBase = true;
-                            jacksState.generalOutput.driveBaseDriveSignal = RUN_DRIVE_BASE_HAB_CLIMB;
-                            setWheels(RUN_JACK_WHEELS_HAB_CLIMB);
-                            if (jacksState.generalInput.rearIrDetectsGround) {
-                                jacksState.generalInput.finishTimestamp = timestamp;
-                                setState(JackSystem.HAB_CLIMB_RETRACT_REAR_JACKS);
-                            }
-                            break;
-                        case HAB_CLIMB_RETRACT_REAR_JACKS:
-                            controlJacks(JackState.RETRACT, JackState.RETRACT, JackState.RETRACT, GainsState.RETRACT);
-                            jacksState.generalOutput.sendSignalToDriveBase = true;
-                            jacksState.generalOutput.driveBaseDriveSignal = new DriveSignal(0.03, 0.03);
-                            setWheels(DriveSignal.NEUTRAL);
-                            if (checkEncoders((int) (LIFT_TOLERANCE / 1.4))) {
-                                jacksState.generalInput.finishTimestamp = timestamp;
-                                setState(JackSystem.HAB_CLIMB_FINISH_DRIVING_FORWARD);
-                            }
-                            break;
-                        case HAB_CLIMB_FINISH_DRIVING_FORWARD:
-                            jacksState.generalOutput.sendSignalToDriveBase = true;
-                            jacksState.generalOutput.driveBaseDriveSignal = RUN_DRIVE_BASE_HAB_CLIMB;
-                            controlJacks(JackState.RETRACT, JackState.RETRACT, JackState.RETRACT, GainsState.RETRACT);
-                            if (timestamp - jacksState.generalInput.finishTimestamp >= HAB_CLIMB_FINISH_DRIVING_TIME/*0.8 @ 30%*/) {
-                                setState(JackSystem.STOP);
-                            }
-                            break;
-                        case OPEN_LOOP:
-                            controlJacks(JackState.RETRACT, JackState.RETRACT, JackState.RETRACT, GainsState.RETRACT);
-                            setWheels(DriveSignal.NEUTRAL);
-                            break;
-                        case STOP:
-                            controlJacks(JackState.STOP, JackState.STOP, JackState.STOP, GainsState.NONE);
-                            break;
-                        default:
-                            DriverStation.reportError("Jack state default reached", false);
-                    }
+                    jacksState = jacksStateMachine.update(jacksState, timestamp);
                 }
             }
 
@@ -273,118 +161,30 @@ public final class Jack0409 extends Subsystem {
         });
     }
 
-    private synchronized boolean zero() {
-        if (jacksState.frontJackInput.currentDraw >= MAX_AMP_DRAW_ZEROING && !jacksState.frontJackInput.hasZeroed) {
-            jacksState.frontJackInput.hasZeroed = true;
-            jacksState.frontJackInput.resetEncoder = true;
-            jacksState.frontJackOutput.demand = JackState.STOP.getDemand();
-            jacksState.frontJackOutput.controlMode = JackState.STOP.getControlMode();
-        }
-
-        if (jacksState.leftJackInput.currentDraw >= MAX_AMP_DRAW_ZEROING && !jacksState.leftJackInput.hasZeroed) {
-            jacksState.leftJackInput.hasZeroed = true;
-            jacksState.leftJackInput.resetEncoder = true;
-            jacksState.leftJackOutput.demand = JackState.STOP.getDemand();
-            jacksState.leftJackOutput.controlMode = JackState.STOP.getControlMode();
-        }
-
-        if (jacksState.rightJackInput.currentDraw >= MAX_AMP_DRAW_ZEROING && !jacksState.rightJackInput.hasZeroed) {
-            jacksState.rightJackInput.hasZeroed = true;
-            jacksState.rightJackInput.resetEncoder = true;
-            jacksState.rightJackOutput.demand = JackState.STOP.getDemand();
-            jacksState.rightJackOutput.controlMode = JackState.STOP.getControlMode();
-        }
-
-        if (jacksState.frontJackInput.hasZeroed && jacksState.rightJackInput.hasZeroed && jacksState.leftJackInput.hasZeroed) {
-            System.out.println("Zeroing completed");
-            return true;
-        } else {
-            System.out.println("Zeroing incomplete");
-        }
-        return false;
-    }
-
     public synchronized void beginZeroing() {
-        setState(JackSystem.ZEROING);
+        setDesiredState(JackSystem.ZEROING);
     }
 
     public synchronized void beginHabClimbLevel3() {
-        setState(JackSystem.INIT_HAB_CLIMB);
-        jacksState.generalInput.habLevelToClimbTo = JackState.HAB3;
+        setDesiredState(JackSystem.INIT_HAB_CLIMB);
+        jacksState.generalInput.habLevelToClimbTo = JacksStateMachine.JackState.HAB3;
     }
 
     public synchronized void beginHabClimbLevel2() {
-        setState(JackSystem.INIT_HAB_CLIMB);
-        jacksState.generalInput.habLevelToClimbTo = JackState.HAB2;
-    }
-
-    private synchronized void setState(JackSystem desiredState) {
-        if (jacksState.generalInput.state != desiredState) {
-            jacksState.generalInput.state = desiredState;
-            if (desiredState == JackSystem.ZEROING) {
-                System.out.println("Switching to zeroing");
-                resetZeros(true);
-            } else if (desiredState == JackSystem.INIT_HAB_CLIMB) {
-                System.out.println("Switching to init hab climb");
-                resetZeros(true);
-            }
-        }
+        setDesiredState(JackSystem.INIT_HAB_CLIMB);
+        jacksState.generalInput.habLevelToClimbTo = JacksStateMachine.JackState.HAB2;
     }
 
     public synchronized void retract() {
-        setState(JackSystem.DRIVER_RETRACT);
+        setDesiredState(JackSystem.DRIVER_RETRACT);
     }
 
     public synchronized void lift() {
-        setState(JackSystem.DRIVER_LIFT);
+        setDesiredState(JackSystem.DRIVER_LIFT);
     }
 
-    private synchronized void gyroCorrect() {
-        final double pitchCorrectionKp = 0.07; // %output per degree
-        final double rollCorrectionKp = 0.05; // %output per degree
-        final double pitchCorrectionOutput = pitchCorrectionKp * jacksState.generalInput.pitch;
-        final double rollCorrectionOutput = rollCorrectionKp * jacksState.generalInput.roll;
-        jacksState.frontJackOutput.feedForward += rollCorrectionOutput;
-        jacksState.leftJackOutput.feedForward -= rollCorrectionOutput;
-        jacksState.rightJackOutput.feedForward -= rollCorrectionOutput;
-
-        jacksState.leftJackOutput.feedForward += pitchCorrectionOutput;
-        jacksState.rightJackOutput.feedForward -= pitchCorrectionOutput;
-    }
-
-    /**
-     * Sets the jacks' demands to given control modes.
-     *
-     * @param front      the {@link JackState} to set the front jack to.
-     * @param left       the {@link JackState} to set the left jack to.
-     * @param right      the {@link JackState} to set the right jack to.
-     * @param gainsState the {@link GainsState} to use for all of the jacks.
-     */
-    private synchronized void controlJacks(JackState front, JackState left, JackState right, GainsState gainsState) {
-        jacksState.generalOutput.desiredGainState = gainsState;
-        if (jacksState.frontJackOutput.controlMode == ControlMode.MotionMagic) {
-            jacksState.frontJackOutput.demand = front.getDemand() + 100;
-        } else {
-            jacksState.frontJackOutput.demand = front.getDemand();
-        }
-        jacksState.frontJackOutput.controlMode = front.getControlMode();
-        jacksState.leftJackOutput.demand = left.getDemand();
-        jacksState.leftJackOutput.controlMode = left.getControlMode();
-        jacksState.rightJackOutput.demand = right.getDemand();
-        jacksState.rightJackOutput.controlMode = right.getControlMode();
-    }
-
-    /**
-     * Checks whether all of the encoders are within tolerance of their currently set demands.
-     *
-     * @param tolerance the maximum tolerance for all of the motors when going to a set position.
-     * @return true if all three of the jack motors are within tolerance, false if any or all of them are outside of
-     * tolerance
-     */
-    private boolean checkEncoders(int tolerance) {
-        return Math.abs(jacksState.frontJackOutput.demand - jacksState.frontJackInput.encoder) < tolerance
-                && Math.abs(jacksState.leftJackOutput.demand - jacksState.leftJackInput.encoder) < tolerance
-                && Math.abs(jacksState.rightJackOutput.demand - jacksState.rightJackInput.encoder) < tolerance;
+    private synchronized void setDesiredState(JackSystem desiredState) {
+        jacksState.generalInput.desiredState = desiredState;
     }
 
     @Override
@@ -413,7 +213,7 @@ public final class Jack0409 extends Subsystem {
      * @param power the output percent to issue to all of the jacks, in the range [-1.0, 1.0].
      */
     public synchronized void setOpenLoop(double power) {
-        setState(JackSystem.OPEN_LOOP);
+        setDesiredState(JackSystem.OPEN_LOOP);
         jacksState.frontJackOutput.demand = power;
         jacksState.leftJackOutput.demand = power;
         jacksState.rightJackOutput.demand = power;
@@ -422,13 +222,12 @@ public final class Jack0409 extends Subsystem {
         jacksState.rightJackOutput.controlMode = ControlMode.PercentOutput;
     }
 
-    public synchronized void setWheels(DriveSignal driveSignal) {
-        jacksState.leftWheelDemand = driveSignal.getLeftOutput();
-        jacksState.rightWheelDemand = driveSignal.getRightOutput();
-    }
-
     @Override
     public synchronized void writePeriodicOutputs() {
+        if (jacksState.generalOutput.resetNavXInformation) {
+            drive.resetNavX();
+        }
+
         if (jacksState.generalOutput.sendSignalToDriveBase) {
             drive.setOpenLoop(jacksState.generalOutput.driveBaseDriveSignal);
         }
@@ -477,31 +276,7 @@ public final class Jack0409 extends Subsystem {
 
     @Override
     public void stop() {
-        setState(JackSystem.STOP);
-    }
-
-    public enum JackState {
-        HAB3(HAB3_ENCODER_VALUE, ControlMode.MotionMagic),
-        HAB2(HAB2_ENCODER_VALUE, ControlMode.MotionMagic),
-        RETRACT(0, ControlMode.MotionMagic),
-        ZEROING(-0.3, ControlMode.PercentOutput),
-        STOP(0.0, ControlMode.PercentOutput);
-
-        private final double demand;
-        private final ControlMode controlMode;
-
-        JackState(double demand, ControlMode controlMode) {
-            this.demand = demand;
-            this.controlMode = controlMode;
-        }
-
-        double getDemand() {
-            return demand;
-        }
-
-        ControlMode getControlMode() {
-            return controlMode;
-        }
+        setDesiredState(JackSystem.STOP);
     }
 
     /**

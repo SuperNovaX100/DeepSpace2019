@@ -1,6 +1,7 @@
 package frc.states;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import frc.statemachines.JacksStateMachine;
 import frc.subsystem.Jack0409;
 import frc.utils.DriveSignal;
 
@@ -17,6 +18,7 @@ public class JacksState {
     public double rightWheelDemand;
 
     public static class GeneralInput {
+        public Jack0409.JackSystem desiredState = Jack0409.JackSystem.STOP;
         public double pitch;
         public double roll;
         public boolean frontIrDetectsGround;
@@ -24,10 +26,11 @@ public class JacksState {
         public double finishTimestamp;
         public Jack0409.JackSystem state = Jack0409.JackSystem.OPEN_LOOP;
         public Jack0409.GainsState lastConfiguredGainState = null;
-        public Jack0409.JackState habLevelToClimbTo = Jack0409.JackState.RETRACT;
+        public JacksStateMachine.JackState habLevelToClimbTo = JacksStateMachine.JackState.RETRACT;
     }
 
     public static class GeneralOutput {
+        public boolean resetNavXInformation = false;
         public boolean sendSignalToDriveBase = false;
         public DriveSignal driveBaseDriveSignal = DriveSignal.NEUTRAL;
         public Jack0409.GainsState desiredGainState = null;
