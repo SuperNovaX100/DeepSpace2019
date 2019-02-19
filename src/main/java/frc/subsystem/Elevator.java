@@ -14,7 +14,7 @@ public final class Elevator extends Subsystem {
     private static final double TOTAL_DELTA_HEIGHT = UPPER_DIST_FROM_GROUND - BOTTOM_DIST_FROM_GROUND;
     private static final double MANUAL_MOVEMENT_DEADBAND = 0.02;
     private static final double MAX_RPM = 5000.0;
-    private static final double ELEVATOR_POSITION_LOOP_KP = -5.0; // (revolutions / minute) / (meter)
+    private static final double ELEVATOR_POSITION_LOOP_KP = -5.0; // (meter^-1)
     private static final double MAXIMUM_ELEVATOR_MOTOR_TEMPERATURE = 80.0; // Celsius
     private static final double ZEROING_PERCENT_OUTPUT = 0.2;
     private static final PidfConstants ELEVATOR_NEO_PIDF_PARAMETERS = new PidfConstants(3.0E-05, 1.0E-06, 0.0, 0.0, 0.0);

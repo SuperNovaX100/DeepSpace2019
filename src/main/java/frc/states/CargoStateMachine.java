@@ -1,8 +1,6 @@
 package frc.states;
 
 public class CargoStateMachine {
-    // These should probably always be positive, we can negate motors individually
-
     private final CargoState systemState = new CargoState();
     private IntakeState desiredIntakeState = IntakeState.STOPPED;
 
