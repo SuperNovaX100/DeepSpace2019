@@ -5,20 +5,15 @@ import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.loops.Loop;
-import frc.loops.LooperInterface;
-import frc.states.CargoState;
-import frc.statemachines.CargoStateMachine;
 import frc.states.IntakeState;
-import frc.utils.Constants;
 
-import static frc.utils.Constants.CARGO_SHUFFLEBOARD;
+import static frc.utils.Constants.*;
+import static frc.utils.ShuffleboardConstants.CARGO_SHUFFLEBOARD;
 
-// Creates variables for the cargo subsystem and initializes motors
 public final class Cargo extends Subsystem {
     private static final double MAXIMUM_VOLTAGE = 12.0;
+    private static final double MAXIMUM_INTAKE_TILT_PERCENT_OUTPUT = 0.8;
     private static Cargo instance;
-
     // Hardware
     private final WPI_TalonSRX centerSide;
     private final WPI_TalonSRX rightRear;
@@ -26,20 +21,22 @@ public final class Cargo extends Subsystem {
     private final WPI_TalonSRX intake;
     private final WPI_TalonSRX intakeTilt;
     private final DigitalInput cargoSensor;
-    private final CargoStateMachine cargoStateMachine = new CargoStateMachine();
-    private CargoState currentState = new CargoState();
+    private IntakeState intakeState = IntakeState.STOPPED;
+    private IntakeState desiredIntakeState = IntakeState.STOPPED;
+    private boolean ballInHold = false;
+    private double intakeTiltOutput;
 
     /**
      * Constructor.
      */
     private Cargo() {
-        cargoSensor = new DigitalInput(Constants.CARGO_SENSOR);
-        centerSide = new WPI_TalonSRX(Constants.CARGO_CENTER);
-        rightRear = new WPI_TalonSRX(Constants.CARGO_LEFT);
-        leftRear = new WPI_TalonSRX(Constants.CARGO_RIGHT);
-        intake = new WPI_TalonSRX(Constants.INTAKE);
+        cargoSensor = new DigitalInput(CARGO_SENSOR);
+        centerSide = new WPI_TalonSRX(CARGO_CENTER);
+        rightRear = new WPI_TalonSRX(CARGO_LEFT);
+        leftRear = new WPI_TalonSRX(CARGO_RIGHT);
+        intake = new WPI_TalonSRX(INTAKE);
 
-        intakeTilt = new WPI_TalonSRX(Constants.INTAKE_TILT);
+        intakeTilt = new WPI_TalonSRX(INTAKE_TILT);
         intakeTilt.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
         intakeTilt.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
         intake.setInverted(true);
@@ -47,17 +44,19 @@ public final class Cargo extends Subsystem {
 //        centerSide.configVoltageCompSaturation(MAXIMUM_VOLTAGE, Constants.CAN_TIMEOUT_MS);
 //        rightRear.configVoltageCompSaturation(MAXIMUM_VOLTAGE, Constants.CAN_TIMEOUT_MS);
 //        leftRear.configVoltageCompSaturation(MAXIMUM_VOLTAGE, Constants.CAN_TIMEOUT_MS);
-//        intake.configVoltageCompSaturation(MAXIMUM_VOLTAGE, Constants.CAN_TIMEOUT_MS);
+//        intakeTilt.configVoltageCompSaturation(MAXIMUM_VOLTAGE, Constants.CAN_TIMEOUT_MS);
 //
 //        centerSide.enableVoltageCompensation(true);
 //        rightRear.enableVoltageCompensation(true);
 //        leftRear.enableVoltageCompensation(true);
 //        intake.enableVoltageCompensation(true);
+//        intakeTilt.enableVoltageCompensation(true);
 //
         centerSide.enableVoltageCompensation(false);
         rightRear.enableVoltageCompensation(false);
         leftRear.enableVoltageCompensation(false);
         intake.enableVoltageCompensation(false);
+        intakeTilt.enableVoltageCompensation(false);
 
         rightRear.setInverted(true);
     }
@@ -77,18 +76,19 @@ public final class Cargo extends Subsystem {
     }
 
     public synchronized void setDesiredState(final IntakeState intakeState) {
-        cargoStateMachine.setDesiredState(intakeState);
+        desiredIntakeState = intakeState;
     }
 
     // Outputs values to shuffleboard
     @Override
     public void outputTelemetry() {
-        CARGO_SHUFFLEBOARD.putString("Cargo Intake State", currentState.intakeState.toString());
-        CARGO_SHUFFLEBOARD.putNumber("Rear Output", currentState.rearMotorOutput);
-        CARGO_SHUFFLEBOARD.putNumber("Left Output", currentState.rightMotorOutput);
-        CARGO_SHUFFLEBOARD.putNumber("Right Output", currentState.leftMotorOutput);
-        CARGO_SHUFFLEBOARD.putNumber("Intake Output", currentState.intakeOutput);
-        CARGO_SHUFFLEBOARD.putBoolean("Cargo In Hold", currentState.ballInHold);
+        CARGO_SHUFFLEBOARD.putString("Cargo Intake State", intakeState.toString());
+        CARGO_SHUFFLEBOARD.putNumber("Rear Output", intakeState.getRearMotorOutput());
+        CARGO_SHUFFLEBOARD.putNumber("Left Output", intakeState.getLeftMotorOutput());
+        CARGO_SHUFFLEBOARD.putNumber("Right Output", intakeState.getRightMotorOutput());
+        CARGO_SHUFFLEBOARD.putNumber("Intake Output", intakeState.getIntakeOutput());
+        CARGO_SHUFFLEBOARD.putNumber("Intake Tilt Output", intakeTiltOutput);
+        CARGO_SHUFFLEBOARD.putBoolean("Cargo In Hold", ballInHold);
     }
 
     /**
@@ -97,33 +97,7 @@ public final class Cargo extends Subsystem {
     @Override
     public synchronized void stop() {
         setDesiredState(IntakeState.STOPPED);
-    }
-
-    @Override
-    public void registerEnabledLoops(final LooperInterface enabledLooper) {
-        final Loop loop = new Loop() {
-            @Override
-            public void onStart(final double timestamp) {
-                setDesiredState(IntakeState.STOPPED);
-            }
-
-            @Override
-            public void onLoop(final double timestamp) {
-                synchronized (Cargo.this) {
-                    currentState = cargoStateMachine.onUpdate(currentState);
-                }
-            }
-
-            @Override
-            public void onStop(final double timestamp) {
-                synchronized (Cargo.this) {
-                    setDesiredState(IntakeState.STOPPED);
-                    stop();
-                }
-            }
-        };
-
-        enabledLooper.registerLoop(loop);
+        intakeTiltOutput = 0.0;
     }
 
     /**
@@ -132,24 +106,31 @@ public final class Cargo extends Subsystem {
      * @return true if there is a cargo in the holding area, false if there is not.
      */
     public synchronized boolean cargoInHold() {
-        return currentState.ballInHold;
+        return ballInHold;
     }
 
     @Override
     public synchronized void readPeriodicInputs() {
-        currentState.ballInHold = !cargoSensor.get();
+        ballInHold = !cargoSensor.get();
     }
 
     @Override
     public synchronized void writePeriodicOutputs() {
-        centerSide.set(ControlMode.PercentOutput, currentState.rearMotorOutput);
-        rightRear.set(ControlMode.PercentOutput, currentState.rightMotorOutput);
-        leftRear.set(ControlMode.PercentOutput, currentState.leftMotorOutput);
-        intake.set(ControlMode.PercentOutput, currentState.intakeOutput);
-        intakeTilt.set(ControlMode.PercentOutput, currentState.intakeTiltOutput);
+        // If ball is in hold, don't allow running the intake any more
+        if (ballInHold && desiredIntakeState.getStopOnSensor()) {
+            intakeState = IntakeState.STOPPED;
+        } else {
+            intakeState = desiredIntakeState;
+        }
+
+        centerSide.set(ControlMode.PercentOutput, intakeState.getRearMotorOutput());
+        rightRear.set(ControlMode.PercentOutput, intakeState.getRightMotorOutput());
+        leftRear.set(ControlMode.PercentOutput, intakeState.getLeftMotorOutput());
+        intake.set(ControlMode.PercentOutput, intakeState.getIntakeOutput());
+        intakeTilt.set(ControlMode.PercentOutput, intakeTiltOutput);
     }
 
     public synchronized void intakeTilt(final double power) {
-        currentState.intakeTiltOutput = 0.8 * power;
+        intakeTiltOutput = MAXIMUM_INTAKE_TILT_PERCENT_OUTPUT * power;
     }
 }

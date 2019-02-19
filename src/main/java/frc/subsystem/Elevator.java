@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.utils.PidfConstants;
 
 import static frc.utils.Constants.*;
+import static frc.utils.ShuffleboardConstants.ELEVATOR_SHUFFLEBOARD;
 import static frc.utils.UnitConversions.inchesToMeters;
 import static frc.utils.UnitConversions.metersToInches;
 
@@ -106,7 +107,7 @@ public final class Elevator extends Subsystem {
         }
     }
 
-    public synchronized boolean ensureHatchStatysOut(){
+    public synchronized boolean ensureHatchStatysOut() {
         return ensureHatchIsOut;
     }
 

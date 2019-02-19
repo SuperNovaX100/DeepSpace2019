@@ -1,10 +1,9 @@
 package frc.subsystem.test;
 
 import frc.states.IntakeState;
-import frc.states.IntakeState;
 import frc.subsystem.Cargo;
 
-import static frc.utils.Constants.TEST_SHUFFLEBOARD;
+import static frc.utils.ShuffleboardConstants.TEST_SHUFFLEBOARD;
 
 public class CargoTest implements SubsystemTest {
 

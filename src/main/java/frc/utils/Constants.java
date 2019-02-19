@@ -1,5 +1,7 @@
 package frc.utils;
 
+import edu.wpi.first.hal.HAL;
+import edu.wpi.first.hal.sim.mockdata.SimulatorJNI;
 import frc.subsystem.DriveTrain;
 
 import static frc.utils.UnitConversions.inchesToMeters;
@@ -39,21 +41,12 @@ public final class Constants {
     public static final int DRIVE_REAR_IR_SENSOR = 4; // dio
     public static final int CAN_TIMEOUT_MS = 10; // ms
     public static final double DRIVE_VOLTAGE_RAMP_RATE = 0; // time from neutral to full power
-    // Network Tables
-    public static final ShuffleboardWriter ROBOT_MAIN_SHUFFLEBOARD;
-    public static final ShuffleboardWriter LOOPER_SHUFFLEBOARD;
-    public static final ShuffleboardWriter DRIVE_SHUFFLEBOARD;
-    public static final ShuffleboardWriter ELEVATOR_SHUFFLEBOARD;
-    public static final ShuffleboardWriter JACKS_SHUFFLEBOARD;
-    public static final ShuffleboardWriter CARGO_SHUFFLEBOARD;
-    public static final ShuffleboardWriter TEST_SHUFFLEBOARD;
-    public static final ShuffleboardWriter HATCH_SHUFFLEBOARD;
     public static final int HATCH_PLACE_ENCODER_POSITION;
     public static final int HATCH_PULL_ENCODER_POSITION;
     public static final boolean ELEVATOR_LIMIT_SWITCH_INVERTED;
     public static final Robot ROBOT = Robot.A_BOT;
-    private static final String DEFAULT_NETWORK_TABLE_KEY = "SmartDashboard";
-    private static final boolean USE_CUSTOM_NETWORK_TABLE_KEYS = true;
+    public static final String DEFAULT_NETWORK_TABLE_KEY = "SmartDashboard";
+    public static final boolean USE_CUSTOM_NETWORK_TABLE_KEYS = true;
 
     public static final double TOTAL_DELTA_ENCODER_VALUE; // revolutions (given by: top value - bottom value)
     public static final double BOTTOM_DIST_FROM_GROUND;
@@ -117,29 +110,6 @@ public final class Constants {
                 break;
         }
     }
-
-    static {
-        if (USE_CUSTOM_NETWORK_TABLE_KEYS) {
-            ROBOT_MAIN_SHUFFLEBOARD = ShuffleboardWriter.getInstance("RobotMain");
-            LOOPER_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Looper");
-            DRIVE_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Drive");
-            ELEVATOR_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Elevator");
-            JACKS_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Jacks");
-            CARGO_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Cargo");
-            TEST_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Test");
-            HATCH_SHUFFLEBOARD = ShuffleboardWriter.getInstance("Hatch");
-        } else {
-            ROBOT_MAIN_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            LOOPER_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            DRIVE_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            ELEVATOR_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            JACKS_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            CARGO_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            TEST_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-            HATCH_SHUFFLEBOARD = ShuffleboardWriter.getInstance(DEFAULT_NETWORK_TABLE_KEY);
-        }
-    }
-
 
     private Constants() {
 

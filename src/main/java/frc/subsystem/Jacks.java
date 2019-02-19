@@ -15,6 +15,7 @@ import frc.utils.Constants;
 import frc.utils.DriveSignal;
 
 import static frc.utils.Constants.*;
+import static frc.utils.ShuffleboardConstants.JACKS_SHUFFLEBOARD;
 
 /**
  * The Jack subsystem, includes the three jacks and the two wheels mounted to the rear jacks.
@@ -306,6 +307,7 @@ public final class Jacks extends Subsystem {
         setState(JackSystem.INIT_HAB_CLIMB);
         habLevelToClimbTo = JackState.HAB3;
     }
+
     public synchronized void beginHabClimbLevel2() {
         setState(JackSystem.INIT_HAB_CLIMB);
         habLevelToClimbTo = JackState.HAB2;
@@ -365,7 +367,7 @@ public final class Jacks extends Subsystem {
             case NONE:
                 break;
         }
-        if(periodicIo.frontJackControlMode == ControlMode.MotionMagic) {
+        if (periodicIo.frontJackControlMode == ControlMode.MotionMagic) {
             periodicIo.frontJackDemand = front.getDemand() + 100;
         } else {
             periodicIo.frontJackDemand = front.getDemand();

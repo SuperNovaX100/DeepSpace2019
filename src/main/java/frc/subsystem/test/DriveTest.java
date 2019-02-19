@@ -3,7 +3,7 @@ package frc.subsystem.test;
 import frc.subsystem.DriveTrain;
 import frc.utils.DriveSignal;
 
-import static frc.utils.Constants.TEST_SHUFFLEBOARD;
+import static frc.utils.ShuffleboardConstants.TEST_SHUFFLEBOARD;
 
 public class DriveTest implements SubsystemTest {
     private static final double BREAK_PERIOD = 0.30;

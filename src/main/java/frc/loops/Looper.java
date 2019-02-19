@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static frc.utils.Constants.LOOPER_SHUFFLEBOARD;
+import static frc.utils.ShuffleboardConstants.LOOPER_SHUFFLEBOARD;
 
 /**
  * Takes groups of {@link Loop}s and executes their functions periodically via an {@link Notifier}..

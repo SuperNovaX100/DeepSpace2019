@@ -7,12 +7,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.loops.Loop;
 import frc.loops.Looper;
 import frc.loops.LooperInterface;
-import frc.states.HatchState;
 import frc.statemachines.HatchStateMachine;
+import frc.states.HatchState;
 
 import static frc.statemachines.HatchStateMachine.PEAK_FORWARD_OUTPUT_STANDARD;
 import static frc.statemachines.HatchStateMachine.PEAK_REVERSE_OUTPUT_STANDARD;
 import static frc.utils.Constants.*;
+import static frc.utils.ShuffleboardConstants.HATCH_SHUFFLEBOARD;
 
 public final class Hatch extends Subsystem {
     private static final int PERIOD_MS = (int) (Looper.PERIOD * 1000);
@@ -90,15 +91,16 @@ public final class Hatch extends Subsystem {
     }
 
     public synchronized void setOpenLoop(double power) {
-        hatchStateMachine.setOpenLoop(-power);
+        hatchState.desiredControlState = HatchState.ControlState.OPEN_LOOP;
+        hatchState.desiredDemand = -power;
     }
 
     public synchronized void setHatchPlace() {
-        hatchStateMachine.setHatchPlace();
+        hatchState.desiredControlState = HatchState.ControlState.HATCH_PLACE_POSITION;
     }
 
     public synchronized void setHatchPull() {
-        hatchStateMachine.setHatchPull();
+        hatchState.desiredControlState = HatchState.ControlState.HATCH_PULL_POSITION;
     }
 
     @Override

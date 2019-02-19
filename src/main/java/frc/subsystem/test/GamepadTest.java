@@ -3,7 +3,7 @@ package frc.subsystem.test;
 import frc.inputs.GameController;
 import frc.utils.DriveSignal;
 
-import static frc.utils.Constants.TEST_SHUFFLEBOARD;
+import static frc.utils.ShuffleboardConstants.TEST_SHUFFLEBOARD;
 
 public class GamepadTest implements SubsystemTest {
     private static final String GAMEPAD_TEST_NETWORK_TABLES_PREFIX = "GamepadTest/";

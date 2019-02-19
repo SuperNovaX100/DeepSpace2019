@@ -15,6 +15,7 @@ import jaci.pathfinder.followers.EncoderFollower;
 import jaci.pathfinder.modifiers.TankModifier;
 
 import static frc.utils.Constants.*;
+import static frc.utils.ShuffleboardConstants.DRIVE_SHUFFLEBOARD;
 import static frc.utils.UnitConversions.inchesToMeters;
 
 // TODO verify everything

@@ -24,7 +24,7 @@ import frc.utils.DriveSignal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 
-import static frc.utils.Constants.ROBOT_MAIN_SHUFFLEBOARD;
+import static frc.utils.ShuffleboardConstants.ROBOT_MAIN_SHUFFLEBOARD;
 
 /**
  * The VM is configured to automatically run this class, and to call the
